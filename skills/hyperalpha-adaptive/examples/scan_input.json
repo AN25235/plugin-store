@@ -1,0 +1,46 @@
+{
+  "account": {
+    "equity": 1000,
+    "free_collateral": 900,
+    "session_loss_pct": 0.01,
+    "session_actions": 0
+  },
+  "markets": [
+    {
+      "coin": "BTC",
+      "price": 70520,
+      "recent_high": 70460,
+      "recent_low": 69340,
+      "atr": 60,
+      "rsi": 64,
+      "funding_rate": 0.0002,
+      "trend_bias": 0.91,
+      "trend_strength": 0.86,
+      "news_risk": "none"
+    },
+    {
+      "coin": "SOL",
+      "price": 186,
+      "recent_high": 184.5,
+      "recent_low": 176,
+      "atr": 2.4,
+      "rsi": 68,
+      "funding_rate": 0.0004,
+      "trend_bias": 0.58,
+      "trend_strength": 0.66,
+      "news_risk": "low"
+    },
+    {
+      "coin": "DOGE",
+      "price": 0.182,
+      "recent_high": 0.180,
+      "recent_low": 0.169,
+      "atr": 0.004,
+      "rsi": 76,
+      "funding_rate": 0.0007,
+      "trend_bias": 0.61,
+      "trend_strength": 0.60,
+      "news_risk": "medium"
+    }
+  ]
+}

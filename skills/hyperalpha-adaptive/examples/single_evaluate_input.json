@@ -1,0 +1,20 @@
+{
+  "account": {
+    "equity": 1000,
+    "free_collateral": 850,
+    "session_loss_pct": 0.01,
+    "session_actions": 0
+  },
+  "market": {
+    "coin": "ETH",
+    "price": 3260,
+    "recent_high": 3225,
+    "recent_low": 3090,
+    "atr": 28,
+    "rsi": 63,
+    "funding_rate": 0.0002,
+    "trend_bias": 0.84,
+    "trend_strength": 0.79,
+    "news_risk": "low"
+  }
+}
