@@ -167,15 +167,9 @@ def _derive_participation_features(
     else:
         oi_change_ratio = 0.0
 
-    direction = 0.0
-    if trend_bias > 0:
-        direction = 1.0
-    elif trend_bias < 0:
-        direction = -1.0
-
     volume_signal = _clip((volume_ratio - 1.0) / 1.2, -1.0, 1.0)
     oi_signal = _clip(oi_change_ratio / 0.15, -1.0, 1.0)
-    participation_bias = _clip(direction * (0.6 * volume_signal + 0.4 * oi_signal), -1.0, 1.0)
+    participation_bias = _clip(0.6 * volume_signal + 0.4 * oi_signal, -1.0, 1.0)
 
     return {
         "volume_ratio": round(max(volume_ratio, 0.0), 4),

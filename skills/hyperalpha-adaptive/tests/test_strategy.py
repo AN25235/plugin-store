@@ -456,6 +456,76 @@ class StrategyTests(unittest.TestCase):
         self.assertEqual(result["action"], "none")
         self.assertEqual(result["market_regime"], "range")
 
+    def test_fetch_market_bearish_edge_is_not_flattened_to_range32(self):
+        fetch_result = {
+            "ok": True,
+            "coin": "ETH",
+            "price": 2317.77,
+            "funding": -0.0001209814456434,
+            "oi_usd": 1584215981.5857656,
+            "oi_history_1h": [
+                {"timestamp": 1, "oi_usd": 1695022364.3391643},
+                {"timestamp": 2, "oi_usd": 1596312115.8738647},
+                {"timestamp": 3, "oi_usd": 1586164811.9152546},
+                {"timestamp": 4, "oi_usd": 1584215981.5857656},
+            ],
+            "timestamp": 1777290418234,
+            "source": "okx_swap_public",
+            "candles_1h": [
+                {"high": 2366.48, "low": 2358.34, "close": 2366.48, "volume": 1558729.05},
+                {"high": 2371.95, "low": 2361.08, "close": 2361.24, "volume": 605276.99},
+                {"high": 2369.87, "low": 2345.01, "close": 2363.09, "volume": 1416870.1},
+                {"high": 2379.99, "low": 2351.62, "close": 2360.26, "volume": 1781760.54},
+                {"high": 2378.68, "low": 2355.5, "close": 2368.22, "volume": 1282763.89},
+                {"high": 2392.0, "low": 2356.32, "close": 2389.0, "volume": 2179486.5},
+                {"high": 2404.0, "low": 2376.25, "close": 2393.62, "volume": 2925961.61},
+                {"high": 2395.77, "low": 2385.56, "close": 2390.88, "volume": 837718.5},
+                {"high": 2399.99, "low": 2389.22, "close": 2393.56, "volume": 1018418.72},
+                {"high": 2394.92, "low": 2379.59, "close": 2382.05, "volume": 1207315.18},
+                {"high": 2382.71, "low": 2316.84, "close": 2321.94, "volume": 7855181.5},
+                {"high": 2327.78, "low": 2310.57, "close": 2319.45, "volume": 2062900.79},
+                {"high": 2322.28, "low": 2313.48, "close": 2314.58, "volume": 912070.52},
+                {"high": 2318.58, "low": 2307.47, "close": 2318.57, "volume": 1431885.29},
+                {"high": 2324.43, "low": 2314.0, "close": 2320.73, "volume": 867193.02},
+                {"high": 2322.92, "low": 2316.83, "close": 2318.51, "volume": 406774.24},
+                {"high": 2321.3, "low": 2315.35, "close": 2317.81, "volume": 286755.66},
+            ],
+        }
+        market, error = _build_market_from_fetch(fetch_result, "ETH")
+        self.assertIsNone(error)
+        self.assertLess(market["participation_bias"], 0)
+        result = evaluate_market(self.bundle, self.account(), market)
+        self.assertEqual(result["action"], "observe")
+        self.assertEqual(result["safe_result"], "threshold_not_met")
+        self.assertEqual(result["market_regime"], "breakdown")
+        self.assertGreaterEqual(result["signal_score"], 50)
+
+    def test_edge_breakout_uses_breakout_multiplier_not_breakdown_multiplier(self):
+        config = json.loads(json.dumps(self.bundle["config"]))
+        config["band_params"]["breakout_mult"] = 0.1
+        config["band_params"]["breakdown_mult"] = 0.8
+        custom_bundle = {
+            "config": config,
+            "coins": self.bundle["coins"],
+            "tiers": self.bundle["tiers"],
+        }
+        result = evaluate_market(
+            custom_bundle,
+            self.account(),
+            self.breakout_market(
+                "BTC",
+                price=70350,
+                trend_bias=0.91,
+                trend_strength=0.86,
+                rsi=64,
+                funding_rate=0.0002,
+                news_risk="none",
+            ),
+        )
+        self.assertEqual(result["action"], "none")
+        self.assertEqual(result["market_regime"], "range")
+        self.assertEqual(result["signal_score"], 32)
+
     def test_breakout_with_rising_open_interest_and_volume_clears_entry_threshold(self):
         market = self.breakout_market(
             "BTC",
@@ -490,6 +560,49 @@ class StrategyTests(unittest.TestCase):
         self.assertEqual(result["safe_result"], "threshold_not_met")
         self.assertIn("participation", result["component_scores"])
         self.assertLess(result["component_scores"]["participation"], 6)
+
+    def test_breakdown_with_rising_open_interest_and_volume_clears_entry_threshold(self):
+        market = self.breakout_market(
+            "BTC",
+            price=69320,
+            recent_high=70460,
+            recent_low=69340,
+            atr=60,
+            trend_bias=-0.96,
+            trend_strength=0.92,
+            funding_rate=0.0001,
+            rsi=33,
+            news_risk="none",
+            volume_ratio=1.75,
+            oi_change_ratio=0.12,
+            participation_bias=0.7,
+        )
+        result = evaluate_market(self.bundle, self.account(), market)
+        self.assertEqual(result["action"], "open_short")
+        self.assertEqual(result["market_regime"], "breakdown")
+        self.assertGreater(result["component_scores"]["participation"], 0)
+
+    def test_breakdown_without_participation_confirmation_stays_below_entry_threshold(self):
+        market = self.breakout_market(
+            "BTC",
+            price=69320,
+            recent_high=70460,
+            recent_low=69340,
+            atr=60,
+            trend_bias=-0.96,
+            trend_strength=0.92,
+            funding_rate=0.0001,
+            rsi=33,
+            news_risk="none",
+            volume_ratio=0.65,
+            oi_change_ratio=-0.08,
+            participation_bias=-0.7,
+        )
+        result = evaluate_market(self.bundle, self.account(), market)
+        self.assertEqual(result["action"], "observe")
+        self.assertEqual(result["safe_result"], "threshold_not_met")
+        self.assertEqual(result["market_regime"], "breakdown")
+        self.assertLess(result["component_scores"]["participation"], 0)
 
     def test_nan_participation_inputs_are_neutralized_instead_of_boosting_signal(self):
         baseline = evaluate_market(

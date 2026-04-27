@@ -82,13 +82,13 @@ def _participation_score(direction: str, market: Dict[str, Any]) -> float:
     participation_bias = _optional_level(market, "participation_bias", 0.0)
     volume_ratio = max(_optional_level(market, "volume_ratio", 1.0), 0.0)
     oi_change_ratio = _optional_level(market, "oi_change_ratio", 0.0)
-    directional_participation = participation_bias if direction == "long" else -participation_bias
-    directional_oi = oi_change_ratio if direction == "long" else -oi_change_ratio
+    directional_participation = participation_bias
+    directional_oi = oi_change_ratio
 
     bias_component = clamp(directional_participation, -1.0, 1.0)
     volume_component = clamp((volume_ratio - 1.0) / 0.8, -1.0, 1.0)
     oi_component = clamp(directional_oi / 0.15, -1.0, 1.0)
-    return clamp(0.5 * bias_component + 0.3 * volume_component + 0.2 * oi_component, -1.0, 1.0)
+    return clamp(0.7 * bias_component + 0.2 * volume_component + 0.1 * oi_component, -1.0, 1.0)
 
 
 def determine_setup(market: Dict[str, Any], bands: Dict[str, float], config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -109,6 +109,26 @@ def determine_setup(market: Dict[str, Any], bands: Dict[str, float], config: Dic
     if price <= bands["lower_band"] and trend_bias < 0 and trend_strength >= thresholds["trend_strength_min"]:
         if rsi < thresholds["rsi_oversold"]:
             return None
+        return {"direction": "short", "market_regime": "breakdown"}
+
+    edge_strength_min = max(0.35, thresholds["trend_strength_min"] - 0.2)
+    edge_trend_bias_min = 0.35
+    edge_breakout_buffer = max(atr, atr * 3.0 * float(params["breakout_mult"]))
+    edge_breakdown_buffer = max(atr, atr * 3.0 * float(params["breakdown_mult"]))
+
+    if (
+        price >= bands["upper_band"] - edge_breakout_buffer
+        and trend_bias >= edge_trend_bias_min
+        and trend_strength >= edge_strength_min
+        and rsi <= thresholds["rsi_long_max"]
+    ):
+        return {"direction": "long", "market_regime": "breakout"}
+    if (
+        price <= bands["lower_band"] + edge_breakdown_buffer
+        and trend_bias <= -edge_trend_bias_min
+        and trend_strength >= edge_strength_min
+        and rsi >= thresholds["rsi_short_min"]
+    ):
         return {"direction": "short", "market_regime": "breakdown"}
 
     breakout_buffer = atr * float(params["breakout_mult"])
