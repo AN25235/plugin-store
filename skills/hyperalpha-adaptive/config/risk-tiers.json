@@ -1,5 +1,5 @@
 {
-  "tier1": {"name": "Tier 1", "coins": ["BTC", "ETH"], "min_signal_score": 70},
-  "tier2": {"name": "Tier 2", "coins": ["SOL", "HYPE", "XRP", "BNB", "LINK", "AVAX"], "min_signal_score": 75},
-  "tier3": {"name": "Tier 3", "coins": ["DOGE"], "min_signal_score": 80}
+  "tier1": {"name": "Tier 1", "coins": ["BTC", "ETH"], "min_signal_score": 55},
+  "tier2": {"name": "Tier 2", "coins": ["SOL", "HYPE", "XRP", "BNB", "LINK", "AVAX"], "min_signal_score": 60},
+  "tier3": {"name": "Tier 3", "coins": ["DOGE"], "min_signal_score": 65}
 }
