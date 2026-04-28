@@ -140,23 +140,32 @@ This shows: Arbitrum USDC balance, Hyperliquid account value, open positions, an
 
 ### Step 6: Install HyperAlpha Adaptive strategy
 
-Download and install:
+The strategy code is bundled inside this skill's `strategy-bundle/` directory. Copy it to `~/hyperalpha-adaptive`:
 
 ```bash
-cd /tmp
-curl -fsSL "https://codeload.github.com/AN25235/plugin-store/zip/refs/heads/submit/hyperalpha-adaptive" -o release.zip
-python3 -c "
-import zipfile, shutil
-from pathlib import Path
-with zipfile.ZipFile('release.zip') as zf:
-    zf.extractall('extracted')
-src = list(Path('extracted').glob('*/skills/hyperalpha-adaptive'))[0]
-target = Path.home() / 'hyperalpha-adaptive'
-if target.exists():
-    shutil.rmtree(target)
-shutil.copytree(src, target)
-print(f'Installed to: {target}')
-"
+# Find where this skill was installed
+SKILL_DIR=""
+for d in "$HOME/.agents/skills" "$HOME/.claude" "$HOME/.cursor" "$HOME/.codex"; do
+  if [ -d "$d/hyperalpha-official-attribution-install/strategy-bundle" ]; then
+    SKILL_DIR="$d/hyperalpha-official-attribution-install/strategy-bundle"
+    break
+  fi
+done
+
+# Fallback: search common agent skill paths
+if [ -z "$SKILL_DIR" ]; then
+  SKILL_DIR=$(find "$HOME" -maxdepth 5 -path "*/hyperalpha-official-attribution-install/strategy-bundle" -type d 2>/dev/null | head -1)
+fi
+
+if [ -z "$SKILL_DIR" ]; then
+  echo "ERROR: strategy-bundle not found. Re-run: npx skills add AN25235/plugin-store --skill hyperalpha-official-attribution-install --yes --global"
+  exit 1
+fi
+
+echo "Found strategy bundle: $SKILL_DIR"
+rm -rf ~/hyperalpha-adaptive
+cp -r "$SKILL_DIR" ~/hyperalpha-adaptive
+echo "Installed to: ~/hyperalpha-adaptive"
 ```
 
 ### Step 7: Run dry-run verification
@@ -264,9 +273,10 @@ A complete installation should produce:
 | `no_funds` from quickstart | No USDC on Arbitrum or Hyperliquid | Send USDC to the EVM address on Arbitrum, then `hyperliquid-plugin deposit --amount <N> --confirm` |
 | `hyperliquid-plugin: command not found` | Binary not in PATH | Run `export PATH="$HOME/.local/bin:$PATH"` before every command, or add it to `~/.bashrc` |
 | `npx skills add` hangs | Interactive prompt waiting for input | Always use `--yes --global` flags |
-
+| `strategy-bundle not found` | Skill installed but strategy code not bundled | Re-run `npx skills add AN25235/plugin-store --skill hyperalpha-official-attribution-install --yes --global` to get the latest version with bundled code |
+| scan returns only HYPE, BTC/ETH/SOL missing | `positions` passed as list `[]` instead of dict `{}` in scan input | The `--fetch-market` scan path validates `positions` as a dict (coin→position object). If the auto-trade daemon builds `positions_for_input` as a list, the validation error silently discards all successfully-fetched coin results. Fix: use `positions_for_input = {}` and `positions_for_input[coin] = {...}` |
 ## Copy-paste instruction for another AI
 
 ```text
-帮我安装 HyperAlpha Adaptive 链上交易全套环境。按以下顺序执行：1) 安装 onchainos CLI 和 skills；2) 用我的邮箱登录 Agentic Wallet（onchainos wallet login），引导我完成 OTP 验证；3) 安装 plugin-store 和 hyperliquid-plugin（npx skills add + 二进制安装）；4) 执行 hyperliquid-plugin register 注册签名地址；5) 运行 hyperliquid-plugin quickstart 检查状态；6) 从 https://codeload.github.com/AN25235/plugin-store/zip/refs/heads/submit/hyperalpha-adaptive 下载并安装 hyperalpha-adaptive 到 ~/hyperalpha-adaptive；7) 跑 py_compile、validate-config、evaluate、scan 四项 dry-run 校验；8) 创建 ~/hyperalpha-adaptive/hyperalpha_official_path.sh 启动器。完成后告诉我安装路径和下一步命令。
+帮我安装 HyperAlpha Adaptive 链上交易全套环境。按以下顺序执行：1) 安装 onchainos CLI 和 skills；2) 用我的邮箱登录 Agentic Wallet（onchainos wallet login），引导我完成 OTP 验证；3) 安装 plugin-store 和 hyperliquid-plugin（npx skills add + 二进制安装）；4) 执行 hyperliquid-plugin register 注册签名地址；5) 运行 hyperliquid-plugin quickstart 检查状态；6) 从已安装 skill 的 strategy-bundle/ 目录复制策略代码到 ~/hyperalpha-adaptive（不需要网络下载）；7) 跑 py_compile、validate-config、evaluate、scan 四项 dry-run 校验；8) 创建 ~/hyperalpha-adaptive/hyperalpha_official_path.sh 启动器。完成后告诉我安装路径和下一步命令。
 ```

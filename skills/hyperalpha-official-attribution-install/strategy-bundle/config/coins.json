@@ -1,0 +1,11 @@
+{
+  "BTC": {"tier": "tier1", "risk_mult": 1.0, "enabled": true},
+  "ETH": {"tier": "tier1", "risk_mult": 1.0, "enabled": true},
+  "SOL": {"tier": "tier2", "risk_mult": 0.7, "enabled": true},
+  "HYPE": {"tier": "tier2", "risk_mult": 0.7, "enabled": true},
+  "XRP": {"tier": "tier2", "risk_mult": 0.7, "enabled": true},
+  "BNB": {"tier": "tier2", "risk_mult": 0.7, "enabled": true},
+  "LINK": {"tier": "tier2", "risk_mult": 0.7, "enabled": true},
+  "AVAX": {"tier": "tier2", "risk_mult": 0.7, "enabled": true},
+  "DOGE": {"tier": "tier3", "risk_mult": 0.45, "enabled": true}
+}

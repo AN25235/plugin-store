@@ -1,0 +1,33 @@
+schema_version: 1
+name: hyperalpha-adaptive
+version: "1.0.0"
+description: "Multi-asset adaptive perpetual strategy skill for Hyperliquid Plugin with dry-run safety, dynamic risk controls, position management, and explicit strategy attribution."
+author:
+  name: "cw"
+  github: "AN25235"
+  email: "2100813zyw@gmail.com"
+license: MIT
+category: strategy
+type: community-developer
+tags:
+  - hyperliquid
+  - perpetuals
+  - multi-asset
+  - strategy
+  - risk-management
+  - adaptive
+
+dependent_plugin:
+  - name: hyperliquid-plugin
+    version: "^0.3.9"
+
+risk_level: high
+supported_venues:
+  - hyperliquid
+
+components:
+  skill:
+    dir: "."
+
+api_calls:
+  - "www.okx.com"
