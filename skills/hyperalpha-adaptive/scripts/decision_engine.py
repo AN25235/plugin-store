@@ -130,7 +130,7 @@ def evaluate_market(bundle: Dict[str, Any], account: Dict[str, Any], market: Dic
         return _halt_result(strategy_id, coin, signal, f"Session guard blocks new entries because {session_guard['reason']}.")
 
     min_signal_score = tier_policy["min_signal_score"] + int(news_policy.get("open_score_threshold_adjustment", 0))
-    if signal["signal_score"] < 40:
+    if signal["signal_score"] < 30:
         result = {
             "strategy_id": strategy_id,
             "coin": coin,

@@ -19,11 +19,11 @@
     "take_profit_mult": 2.2
   },
   "thresholds": {
-    "trend_strength_min": 0.55,
-    "rsi_overbought": 74,
-    "rsi_oversold": 26,
-    "rsi_long_max": 71,
-    "rsi_short_min": 29,
+    "trend_strength_min": 0.35,
+    "rsi_overbought": 78,
+    "rsi_oversold": 22,
+    "rsi_long_max": 75,
+    "rsi_short_min": 25,
     "funding_hot_long": 0.0009,
     "funding_cold_short": -0.0009,
     "funding_hot_short": 0.0009,
