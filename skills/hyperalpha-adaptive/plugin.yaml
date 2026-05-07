@@ -5,7 +5,7 @@ description: "Multi-asset adaptive perpetual strategy skill for Hyperliquid Plug
 author:
   name: "cw"
   github: "AN25235"
-  email: "2100813zyw@gmail.com"
+
 license: MIT
 category: strategy
 type: community-developer

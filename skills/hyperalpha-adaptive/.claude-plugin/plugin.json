@@ -3,8 +3,7 @@
   "description": "Multi-asset adaptive perpetual strategy skill for Hyperliquid Plugin with dry-run safety, dynamic risk controls, position management, and explicit strategy attribution.",
   "version": "1.0.0",
   "author": {
-    "name": "cw",
-    "email": "2100813zyw@gmail.com"
+    "name": "cw"
   },
   "license": "MIT",
   "keywords": [
